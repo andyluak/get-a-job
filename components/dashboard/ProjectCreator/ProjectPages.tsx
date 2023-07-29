@@ -1,5 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { getProjectFeaturesWithLogging } from "@/lib/openai";
+import {
+  getProjectFeaturesWithLogging,
+  getProjectPagesWithLogging,
+} from "@/lib/openai";
 import { useProgressFormStore, useProjectCreateStore } from "@/store";
 import React from "react";
 import clsx from "clsx";
@@ -7,7 +10,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 type Props = {};
 
-const ProjectFeatures = (props: Props) => {
+const ProjectPages = (props: Props) => {
   const { nextStep, prevStep } = useProgressFormStore();
   const queryClient = useQueryClient();
   const {
@@ -17,58 +20,36 @@ const ProjectFeatures = (props: Props) => {
     resetProjectObjectProps,
   } = useProjectCreateStore((state) => state);
 
-  const { name, description, slug, features } = projectObject;
+  const { name, description, slug, features, pages } = projectObject;
 
   const { data } = useQuery({
-    queryKey: ["projectFeatures", name, description, yearsOfExperience, slug],
+    queryKey: ["projectPages", name, description, yearsOfExperience, slug],
     queryFn: async () => {
-      resetProjectObjectProps();
-      return await getProjectFeaturesWithLogging({
+      return await getProjectPagesWithLogging({
         projectName: name,
         projectDescription: description,
         yearsOfExperience,
+        features,
       });
     },
   });
-  const { projectFeatures } = data ?? [];
+  const { projectPages } = data ?? [];
 
-  const getMoreProjectFeaturesMutation = useMutation(
-    async () => {
-      const { projectFeatures: newProjectFeatures } =
-        await getProjectFeaturesWithLogging({
-          projectName: name,
-          projectDescription: description,
-          exclusions: projectFeatures,
-        });
-      return newProjectFeatures;
-    },
-    {
-      onSuccess: (newProjectFeatures) => {
-        queryClient.setQueryData(
-          ["projectFeatures", name, description, yearsOfExperience, slug],
-          {
-            projectFeatures: [...projectFeatures, ...newProjectFeatures],
-          }
-        );
-      },
-    }
-  );
-
-  const handleFeatureSelect = (feature: string) => {
-    if (features.includes(feature)) {
-      const newFeatures = features.filter((f) => f !== feature);
+  const handlePageSelect = (page: string) => {
+    if (pages.includes(page)) {
+      const newPages = pages.filter((f) => f !== page);
       setProjectObject({
         ...projectObject,
-        features: newFeatures,
+        pages: newPages,
       });
     } else {
       setProjectObject({
         ...projectObject,
-        features: [...features, feature],
+        pages: [...pages, page],
       });
     }
   };
-  console.log(projectObject);
+
   return (
     <div className="flex h-full flex-col gap-8">
       <div className="space-y-2">
@@ -78,23 +59,17 @@ const ProjectFeatures = (props: Props) => {
       <div className="space-y-2">
         <h3 className="text-xl font-bold">Features</h3>
         <ul className="max-h-[150px] space-y-2 overflow-y-scroll text-sm">
-          {projectFeatures &&
-            projectFeatures?.map((feature: string) => (
+          {projectPages &&
+            projectPages?.map((page: string) => (
               <Feature
-                handleSelect={handleFeatureSelect}
-                key={feature}
-                feature={feature}
-                isSelected={features.includes(feature)}
+                handleSelect={handlePageSelect}
+                key={page}
+                feature={page}
+                isSelected={pages.includes(page)}
               />
             ))}
         </ul>
       </div>
-      <Button
-        onClick={() => getMoreProjectFeaturesMutation.mutate()}
-        className="self-start"
-      >
-        Give Me More
-      </Button>
       <div className="flex flex-row justify-end gap-4">
         <Button
           type="submit"
@@ -113,7 +88,7 @@ const ProjectFeatures = (props: Props) => {
   );
 };
 
-export default ProjectFeatures;
+export default ProjectPages;
 
 const Feature = ({
   feature,

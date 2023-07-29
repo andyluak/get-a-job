@@ -3,7 +3,12 @@ import chalk from "chalk";
 
 import { getKey } from "./utils";
 
-import { projectFeaturesPrompt, projectIdeasPrompt } from "./prompts";
+import {
+  projectFeaturesPrompt,
+  projectHomepageSectionsPrompt,
+  projectIdeasPrompt,
+  projectPagesPrompt,
+} from "./prompts";
 const getOpenAi = () => {
   const configuration = new Configuration({
     apiKey: getKey("openai") as string,
@@ -24,6 +29,20 @@ type ProjectIdeaProps = {
 type ProjectFeaturesProps = {
   projectName: string;
   projectDescription: string;
+  exclusions?: string[];
+};
+
+type ProjectPagesProps = {
+  projectName: string;
+  projectDescription: string;
+  yearsOfExperience: number;
+  features: string[];
+};
+
+type ProjectHomepageSectionsProps = Omit<
+  ProjectPagesProps,
+  "yearsOfExperience"
+> & {
   exclusions?: string[];
 };
 
@@ -89,6 +108,78 @@ const getProjectFeatures = async ({
   return { projectFeatures, totalTokens };
 };
 
+const getProjectPages = async ({
+  projectName,
+  projectDescription,
+  yearsOfExperience,
+  features,
+}: ProjectPagesProps) => {
+  const prompt = projectPagesPrompt
+    .replace("{projectName}", projectName)
+    .replace("{projectDescription}", projectDescription)
+    .replace("{yearsOfExperience}", yearsOfExperience.toString())
+    .replace("{features}", features.join(", "));
+
+  const { openai, model } = getOpenAi();
+  const response = await openai.createChatCompletion({
+    model,
+    messages: [{ role: "user", content: prompt }],
+    max_tokens: 3000,
+    temperature: 0,
+  });
+
+  const {
+    choices,
+    // @ts-ignore
+    usage: { total_tokens: totalTokens },
+  } = response.data;
+  const { message } = choices[0] || {};
+  const { content: unformattedProjectPages } = message || { content: "" };
+
+  const projectPages = JSON.parse(unformattedProjectPages || "[]");
+
+  return { projectPages, totalTokens };
+};
+const getProjectHomepageSections = async ({
+  projectName,
+  projectDescription,
+  features,
+  exclusions = [""],
+}: ProjectHomepageSectionsProps) => {
+  const prompt = projectHomepageSectionsPrompt(exclusions.length > 0)
+    .replace("{projectName}", projectName)
+    .replace("{projectDescription}", projectDescription)
+    .replace("{features}", features.join(", "))
+    .replace("{exclusions}", exclusions.join(", "));
+
+
+  console.log("prompt", prompt);
+
+  const { openai, model } = getOpenAi();
+  const response = await openai.createChatCompletion({
+    model,
+    messages: [{ role: "user", content: prompt }],
+    max_tokens: 3000,
+    temperature: 0,
+  });
+
+  const {
+    choices,
+    // @ts-ignore
+    usage: { total_tokens: totalTokens },
+  } = response.data;
+  const { message } = choices[0] || {};
+  const { content: unformattedProjectHomepageSections } = message || {
+    content: "",
+  };
+
+  const projectHomepageSections = JSON.parse(
+    unformattedProjectHomepageSections || "[]"
+  );
+
+  return { projectHomepageSections, totalTokens };
+};
+
 export const withLogging =
   (fn: (...args: any[]) => Promise<any>) =>
   async (...args: any[]) => {
@@ -117,3 +208,7 @@ export const withLogging =
 
 export const getProjectIdeasWithLogging = withLogging(getInitialProjectIdeas);
 export const getProjectFeaturesWithLogging = withLogging(getProjectFeatures);
+export const getProjectPagesWithLogging = withLogging(getProjectPages);
+export const getProjectHomepageSectionsWithLogging = withLogging(
+  getProjectHomepageSections
+);

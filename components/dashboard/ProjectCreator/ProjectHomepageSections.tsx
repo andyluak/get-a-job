@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { getProjectFeaturesWithLogging } from "@/lib/openai";
+import { getProjectHomepageSectionsWithLogging } from "@/lib/openai";
 import { useProgressFormStore, useProjectCreateStore } from "@/store";
 import React from "react";
 import clsx from "clsx";
@@ -7,94 +7,107 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 type Props = {};
 
-const ProjectFeatures = (props: Props) => {
-  const { nextStep, prevStep } = useProgressFormStore();
+const ProjectHomepageSections = (props: Props) => {
   const queryClient = useQueryClient();
-  const {
-    projectObject,
-    data: { yearsOfExperience },
-    setProjectObject,
-    resetProjectObjectProps,
-  } = useProjectCreateStore((state) => state);
+  const { nextStep, prevStep } = useProgressFormStore();
+  const { projectObject, setProjectObject, resetProjectObjectProps } =
+    useProjectCreateStore((state) => state);
 
-  const { name, description, slug, features } = projectObject;
+  const { name, description, slug, features, homepageSections } = projectObject;
 
   const { data } = useQuery({
-    queryKey: ["projectFeatures", name, description, yearsOfExperience, slug],
+    queryKey: [
+      "projectHomepageSections",
+      name,
+      description,
+      slug,
+      features.join(""),
+    ],
     queryFn: async () => {
-      resetProjectObjectProps();
-      return await getProjectFeaturesWithLogging({
+      return await getProjectHomepageSectionsWithLogging({
         projectName: name,
         projectDescription: description,
-        yearsOfExperience,
+        features,
       });
     },
   });
-  const { projectFeatures } = data ?? [];
+  const { projectHomepageSections } = data ?? [];
 
-  const getMoreProjectFeaturesMutation = useMutation(
+  const getMoreProjectHomepageSections = useMutation(
     async () => {
-      const { projectFeatures: newProjectFeatures } =
-        await getProjectFeaturesWithLogging({
+      const { projectHomepageSections: newProjectHomepageSections } =
+        await getProjectHomepageSectionsWithLogging({
           projectName: name,
           projectDescription: description,
-          exclusions: projectFeatures,
+          features,
+          exclusions: projectHomepageSections,
         });
-      return newProjectFeatures;
+      return newProjectHomepageSections;
     },
     {
-      onSuccess: (newProjectFeatures) => {
+      onSuccess: (newProjectHomepageSections) => {
         queryClient.setQueryData(
-          ["projectFeatures", name, description, yearsOfExperience, slug],
+          [
+            "projectHomepageSections",
+            name,
+            description,
+            slug,
+            features.join(""),
+          ],
           {
-            projectFeatures: [...projectFeatures, ...newProjectFeatures],
+            projectHomepageSections: [
+              ...projectHomepageSections,
+              ...newProjectHomepageSections,
+            ],
           }
         );
       },
     }
   );
 
-  const handleFeatureSelect = (feature: string) => {
-    if (features.includes(feature)) {
-      const newFeatures = features.filter((f) => f !== feature);
+  const handlePageSelect = (homepageSection: string) => {
+    if (homepageSections.includes(homepageSection)) {
+      const newHomepageSections = homepageSections.filter(
+        (f) => f !== homepageSection
+      );
       setProjectObject({
         ...projectObject,
-        features: newFeatures,
+        homepageSections: newHomepageSections,
       });
     } else {
       setProjectObject({
         ...projectObject,
-        features: [...features, feature],
+        homepageSections: [...homepageSections, homepageSection],
       });
     }
   };
-  console.log(projectObject);
+
   return (
     <div className="flex h-full flex-col gap-8">
       <div className="space-y-2">
-        <h2 className="text-xl font-bold">{name} - Features</h2>
+        <h2 className="text-xl font-bold">{name} - Homepage Sections</h2>
         <p className="text-sm leading-6 text-slate-500">{description}</p>
       </div>
       <div className="space-y-2">
         <h3 className="text-xl font-bold">Features</h3>
         <ul className="max-h-[150px] space-y-2 overflow-y-scroll text-sm">
-          {projectFeatures &&
-            projectFeatures?.map((feature: string) => (
+          {projectHomepageSections &&
+            projectHomepageSections?.map((homepageSection: string) => (
               <Feature
-                handleSelect={handleFeatureSelect}
-                key={feature}
-                feature={feature}
-                isSelected={features.includes(feature)}
+                handleSelect={handlePageSelect}
+                key={homepageSection}
+                feature={homepageSection}
+                isSelected={homepageSections.includes(homepageSection)}
               />
             ))}
         </ul>
+        <Button
+          onClick={() => getMoreProjectHomepageSections.mutate()}
+          className="self-start"
+        >
+          Give Me More
+        </Button>
       </div>
-      <Button
-        onClick={() => getMoreProjectFeaturesMutation.mutate()}
-        className="self-start"
-      >
-        Give Me More
-      </Button>
       <div className="flex flex-row justify-end gap-4">
         <Button
           type="submit"
@@ -113,7 +126,7 @@ const ProjectFeatures = (props: Props) => {
   );
 };
 
-export default ProjectFeatures;
+export default ProjectHomepageSections;
 
 const Feature = ({
   feature,

@@ -12,6 +12,8 @@ import ProjectIdeas from "@/components/dashboard/ProjectCreator/ProjectIdeas";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import ProjectFeatures from "@/components/dashboard/ProjectCreator/ProjectFeatures";
 import { getProjectIdeasWithLogging } from "@/lib/openai";
+import ProjectPages from "@/components/dashboard/ProjectCreator/ProjectPages";
+import ProjectHomepageSections from "@/components/dashboard/ProjectCreator/ProjectHomepageSections";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -53,7 +55,8 @@ const Dashboard = () => {
                 <Initial />
                 <ProjectIdeas />
                 <ProjectFeatures />
-                <Step4 />
+                <ProjectPages />
+                <ProjectHomepageSections />
               </ProgressForm>
             </DialogContent>
           </Dialog>

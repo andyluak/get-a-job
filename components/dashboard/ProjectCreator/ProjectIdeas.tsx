@@ -8,28 +8,46 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import useEffectOnce from "@/utils/hooks/useEffectOnce";
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
+import { useQuery } from "@tanstack/react-query";
+import { getProjectIdeasWithLogging } from "@/lib/openai";
 
 type Props = {};
 
 const ProjectIdeas = (props: Props) => {
   const { nextStep, prevStep } = useProgressFormStore();
-  
-  const {
-    yearsOfExperience,
-    projectType,
-    projectSector,
-    projectIdeas,
-    selectedProject,
-  } = useProjectCreateStore((state) => state.data);
-  const setData = useProjectCreateStore((state) => state.setData);
-  const { fetchProjectIdeas } = useProjectCreateStore((state) => state);
 
-  useEffectOnce(() => {
-    fetchProjectIdeas();
+  const {
+    data: { yearsOfExperience, projectType, projectSector },
+    projectObject,
+    setProjectObject,
+  } = useProjectCreateStore();
+  const { name, description, slug } = projectObject;
+
+  const { data } = useQuery({
+    queryKey: ["projectIdeas", yearsOfExperience, projectType, projectSector],
+    queryFn: async () => {
+      return await getProjectIdeasWithLogging({
+        yearsOfExperience,
+        projectType,
+        projectSector,
+      });
+    },
   });
+  const { projectIdeas } = data ?? [];
+
+  const selectDefaultProject = () => {
+    const defaultProjectDescription = projectIdeas?.[0]?.description;
+    const defaultProjectName = projectIdeas?.[0]?.name;
+    const defaultProjectSlug = slugifyProjectName(defaultProjectName);
+
+    setProjectObject({
+      name: defaultProjectName,
+      description: defaultProjectDescription,
+      slug: defaultProjectSlug,
+    });
+  };
 
   useEffect(() => {
     if (!projectIdeas) return;
@@ -44,23 +62,8 @@ const ProjectIdeas = (props: Props) => {
   };
 
   const newProjectDescription = projectIdeas?.find(
-    (idea: { name: string }) =>
-      slugifyProjectName(idea?.name) === selectedProject?.slug
+    (idea: { name: string }) => slugifyProjectName(idea?.name) === slug
   )?.description;
-
-  const selectDefaultProject = () => {
-    const defaultProjectDescription = projectIdeas?.[0]?.description;
-    const defaultProjectName = projectIdeas?.[0]?.name;
-    const defaultProjectSlug = slugifyProjectName(defaultProjectName);
-
-    setData({
-      selectedProject: {
-        name: defaultProjectName,
-        description: defaultProjectDescription,
-        slug: defaultProjectSlug,
-      },
-    });
-  };
 
   return (
     <div className="mb-4 flex h-full w-full flex-col gap-4">
@@ -72,7 +75,7 @@ const ProjectIdeas = (props: Props) => {
       </p>
       <Select
         name="project-ideas"
-        value={selectedProject?.slug ?? ""}
+        value={slug ?? ""}
         onValueChange={(val) => {
           const newProjectDescription = projectIdeas?.find(
             (idea: { name: string }) => slugifyProjectName(idea?.name) === val
@@ -82,12 +85,10 @@ const ProjectIdeas = (props: Props) => {
             (idea: { name: string }) => slugifyProjectName(idea?.name) === val
           )?.name;
 
-          setData({
-            selectedProject: {
-              name: newProjectName,
-              description: newProjectDescription,
-              slug: val,
-            },
+          setProjectObject({
+            name: newProjectName,
+            description: newProjectDescription,
+            slug: val,
           });
         }}
       >

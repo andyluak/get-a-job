@@ -53,7 +53,7 @@ const Initial = () => {
   };
 
   return (
-    <form className="space-y-8" onSubmit={handleSubmit}>
+    <form className="gap-8 h-full flex flex-col" onSubmit={handleSubmit}>
       <h3 className="text-slate-500">
         Initial Questions to be able to see what sort of project would fit you
       </h3>
@@ -102,7 +102,7 @@ const Initial = () => {
           defaultValue={projectSector}
         />
       </div>
-      <div className="flex flex-row justify-end">
+      <div className="flex flex-row justify-end mt-auto mb-4">
         <Button type="submit">Next</Button>
       </div>
     </form>

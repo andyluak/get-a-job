@@ -16,7 +16,7 @@ const ProgressForm = ({ steps, children }: Props) => {
   const CurrentStepComponent = children[currentStep - 1];
 
   return (
-    <div className="flex min-h-[500px] flex-col justify-between">
+    <div className="flex min-h-[600px] flex-col justify-between">
       {CurrentStepComponent}
       <div className="flex flex-col justify-between space-y-4">
         <Progress value={progressValue} />
