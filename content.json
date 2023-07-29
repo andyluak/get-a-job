@@ -1,0 +1,53 @@
+{
+  "hero": {
+    "subtitle": "Your personal project idea generator. Best of all, it's free and open source.",
+    "cta": "Get Started"
+  },
+  "why_getajob": {
+    "title": "Why GetAJob?",
+    "subtitle": "GetAJob is a project idea generator that helps you find the perfect project to work on. It's a great way to learn new technologies and build your portfolio. Also uses OpenAI for some extra ideas.",
+    "cards": [
+      {
+        "title": "Endless Ideas",
+        "subtitle": "Unleash your creativity with countless unique project ideas."
+      },
+      {
+        "title": "Build your portfolio",
+        "subtitle": "GetAJob will help you build your portfolio by giving you project ideas that you can add to your portfolio."
+      },
+      {
+        "title": "Tailored Suggestions",
+        "subtitle": "Get project suggestions tailored to your skills and interests."
+      },
+      {
+        "title": "Get a job",
+        "subtitle": "This is the ultimate goal."
+      }
+    ]
+  },
+  "how_it_works_section": {
+    "title": "How it works",
+    "steps": [
+      {
+        "title": "Input Preferences",
+        "subtitle": "Tell us about the type of project you're looking to build and your preferred sectors."
+      },
+      {
+        "title": "Generate Ideas",
+        "subtitle": "Let OpenAI generate unique and innovative project ideas based on your preferences."
+      },
+      {
+        "title": "Fine Tune",
+        "subtitle": "Refine your project idea with features, homepage sections, and additional pages."
+      },
+      {
+        "title": "Get Coding!",
+        "subtitle": "Receive your tailored project plan, complete with suggested code snippets, and get started on building."
+      }
+    ]
+  },
+  "get_started_section": {
+    "title": "Ready to Start Building?",
+    "cta": "Start Now"
+  }
+}

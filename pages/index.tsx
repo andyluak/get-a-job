@@ -1,118 +1,115 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
+import clsx from "clsx";
+import { Inter } from "next/font/google";
 
-const inter = Inter({ subsets: ['latin'] })
+import { motion, useScroll, useTransform } from "framer-motion";
 
-export default function Home() {
+import content from "@/content.json";
+
+import { Content } from "@/types";
+
+import CTA from "@/components/CTA";
+import DefaultHead from "@/components/DefaultHead";
+import { Button } from "@/components/ui/button";
+import { useRef } from "react";
+
+const inter = Inter({ subsets: ["latin"] });
+
+type Props = {
+  content: Content;
+};
+
+export default function Home({ content }: Props) {
+  const hero = content.hero;
+  const why = content.why_getajob;
+  const howItWorks = content.how_it_works_section;
+  const cta = content.get_started_section;
+
+  const listRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: listRef,
+    offset: ["start center", "center"],
+    smooth: 1,
+  });
+  const translateX = useTransform(scrollYProgress, [0, 1], [-500, 0], { clamp: false });
+
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">pages/index.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <>
+      <DefaultHead page="Home" />
+      <main
+        className={clsx(inter.className, "max-desktop space-y-16 px-16 py-8")}
+      >
+        <motion.section
+          className="flex flex-col items-center justify-center gap-10 md:gap-16"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <h1 className="max-w-xl text-center text-xl">{hero.subtitle}</h1>
+          <Button size="xl">{hero.cta}</Button>
+        </motion.section>
+        <section className="flex flex-col gap-8">
+          <h2 className="text-3xl font-bold">{why.title}</h2>
+          <p className="max-w-2xl text-lg leading-7 tracking-tighter md:leading-[3rem]">
+            {why.subtitle}
+          </p>
+          <motion.ul
+            className="grid grid-cols-1 gap-8 md:grid-cols-2 "
+            initial={{ opacity: 0 }}
+            style={{
+              opacity: scrollYProgress,
+              translateX,
+            }}
+            ref={listRef}
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+            {why.cards?.map((card, index) => {
+              return (
+                <li
+                  key={card.title}
+                  className={clsx(
+                    "flex w-full max-w-md flex-col items-center justify-center gap-4 rounded-lg  bg-gradient-to-r from-slate-100 to-slate-200/50 px-8 py-20 text-center",
+                    {
+                      "justify-self-end": index % 2,
+                    }
+                  )}
+                >
+                  <h3 className="text-2xl font-bold">{card.title}</h3>
+                  <p className="max-w-md text-lg">{card.subtitle}</p>
+                </li>
+              );
+            })}
+          </motion.ul>
+        </section>
+        <CTA title={cta.title} cta={cta.cta} />
+        <section className="flex flex-col gap-8">
+          <h2 className="text-3xl font-bold">{howItWorks.title}</h2>
+          <ul className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            {howItWorks.steps?.map((card, index) => {
+              return (
+                <li
+                  key={card.title}
+                  className={clsx(
+                    "flex w-full max-w-md flex-col items-center justify-center gap-4 rounded-lg  bg-gradient-to-r from-slate-100 to-slate-200/50 px-8 py-20 text-center",
+                    {
+                      "justify-self-end": index % 2,
+                    }
+                  )}
+                >
+                  <h3 className="text-2xl font-bold">{card.title}</h3>
+                  <p className="max-w-md text-lg">{card.subtitle}</p>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+        <CTA title={cta.title} cta={cta.cta} />
+      </main>
+    </>
+  );
 }
+
+export const getStaticProps = async () => {
+  return {
+    props: {
+      content,
+    },
+  };
+};
